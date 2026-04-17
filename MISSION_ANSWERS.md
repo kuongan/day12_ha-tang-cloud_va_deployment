@@ -1,5 +1,10 @@
 # Day 12 Lab - Mission Answers
 
+> **Student Name:** Nguyễn Trần Khương An  
+> **Student ID:** 2A202600222  
+> **Date:** 17/04/2026
+
+
 ## Part 1: Localhost vs Production
 
 ### Exercise 1.1: Anti-patterns Found
@@ -524,3 +529,95 @@ Hệ thống đạt tiêu chuẩn **Stateless Architecture**:
 1. **Tính linh hoạt**: Client có thể kết nối tới bất kỳ instance nào mà không bị mất dữ liệu.
 2. **Khả năng mở rộng**: Có thể thêm/bớt instance tùy ý mà không ảnh hưởng đến trải nghiệm người dùng.
 3. **Độ tin cậy**: Dữ liệu session được tách biệt khỏi vòng đời của container (externalized state).
+
+## Part 6: Final Project
+
+### Objective
+
+Đã hoàn thiện một production-ready AI agent trong thư mục `06-lab-complete`, tích hợp đầy đủ các phần đã học từ Part 1 đến Part 5.
+
+### Functional Requirements
+
+1. **REST API trả lời câu hỏi**
+- Endpoint `POST /ask` nhận JSON `{ "question": "..." }` và trả về câu trả lời.
+
+2. **Hỗ trợ conversation history**
+- Endpoint `POST /chat` hỗ trợ `session_id` để tiếp tục hội thoại.
+- Endpoint `GET /chat/{session_id}/history` trả lịch sử hội thoại theo phiên.
+
+3. **Streaming responses (optional)**
+- Endpoint `POST /ask/stream` trả response dạng stream (`StreamingResponse`).
+
+### Non-functional Requirements
+
+1. **Dockerized multi-stage build**
+- `06-lab-complete/Dockerfile` dùng 2 stage (`builder` và `runtime`), runtime chạy bằng non-root user.
+
+2. **Config qua environment variables (12-factor)**
+- `06-lab-complete/app/config.py` đọc toàn bộ config từ env: `PORT`, `REDIS_URL`, `AGENT_API_KEY`, `RATE_LIMIT_PER_MINUTE`, `MONTHLY_BUDGET_USD`, ...
+
+3. **API key authentication**
+- `06-lab-complete/app/auth.py` xác thực header `X-API-Key`.
+
+4. **Rate limiting (10 req/min per user)**
+- `06-lab-complete/app/rate_limiter.py` implement sliding-window (Redis ZSET), fallback in-memory cho local.
+
+5. **Cost guard ($10/month per user)**
+- `06-lab-complete/app/cost_guard.py` kiểm tra ngân sách theo tháng (`budget:{user_id}:{YYYY-MM}`), chặn 402 khi vượt mức.
+
+6. **Health và readiness**
+- `GET /health`: báo trạng thái sống và thông tin vận hành.
+- `GET /ready`: kiểm tra Redis sẵn sàng nhận traffic.
+
+7. **Graceful shutdown**
+- Dùng lifespan + signal handler (`SIGTERM`) trong `06-lab-complete/app/main.py`.
+
+8. **Stateless design (state trong Redis)**
+- Lịch sử chat và budget được lưu external qua Redis (`06-lab-complete/app/storage.py`, `06-lab-complete/app/cost_guard.py`).
+
+9. **Structured logging**
+- Logging JSON trong `06-lab-complete/app/main.py` để dễ parse và monitor.
+
+10. **Load balancer architecture**
+- `06-lab-complete/docker-compose.yml` đã bổ sung `nginx` reverse proxy đứng trước `agent`.
+- `06-lab-complete/nginx.conf` định tuyến request vào backend service.
+
+11. **Deploy readiness**
+- Có sẵn file `railway.toml` và `render.yaml` để triển khai cloud.
+
+### Architecture (Implemented)
+
+`Client -> Nginx -> Agent API -> Redis`
+
+### Validation
+
+Chạy kiểm tra checklist:
+
+```bash
+cd 06-lab-complete
+python check_production_ready.py
+```
+
+Kết quả kỳ vọng:
+- Có đầy đủ file deploy và docker.
+- Có auth + rate limit + cost guard.
+- Có health/readiness + graceful shutdown.
+- Có stateless state management qua Redis.
+
+### Deliverables hoàn thiện
+
+1. `06-lab-complete/app/main.py` (main app production)
+2. `06-lab-complete/app/config.py` (12-factor config)
+3. `06-lab-complete/app/auth.py`
+4. `06-lab-complete/app/rate_limiter.py`
+5. `06-lab-complete/app/cost_guard.py`
+6. `06-lab-complete/app/storage.py`
+7. `06-lab-complete/utils/mock_llm.py`
+8. `06-lab-complete/Dockerfile`
+9. `06-lab-complete/docker-compose.yml`
+10. `06-lab-complete/nginx.conf`
+11. `06-lab-complete/.env.example`
+
+### Kết luận
+
+Part 6 đã được hoàn thiện theo hướng production-ready: service có bảo mật, giới hạn truy cập, kiểm soát chi phí, lưu trạng thái external, sẵn sàng scale và sẵn sàng deploy.
