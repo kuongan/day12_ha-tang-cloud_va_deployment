@@ -606,17 +606,17 @@ Kết quả kỳ vọng:
 
 ### Deliverables hoàn thiện
 
-1. `06-lab-complete/app/main.py` (main app production)
-2. `06-lab-complete/app/config.py` (12-factor config)
-3. `06-lab-complete/app/auth.py`
-4. `06-lab-complete/app/rate_limiter.py`
-5. `06-lab-complete/app/cost_guard.py`
-6. `06-lab-complete/app/storage.py`
-7. `06-lab-complete/utils/mock_llm.py`
-8. `06-lab-complete/Dockerfile`
-9. `06-lab-complete/docker-compose.yml`
-10. `06-lab-complete/nginx.conf`
-11. `06-lab-complete/.env.example`
+1. `my-production-agent/app/main.py` (main app production)
+2. `my-production-agent/app/config.py` (12-factor config)
+3. `my-production-agent/app/auth.py`
+4. `my-production-agent/app/rate_limiter.py`
+5. `my-production-agent/app/cost_guard.py`
+6. `my-production-agent/app/storage.py`
+7. `my-production-agent/utils/mock_llm.py`
+8. `my-production-agent/Dockerfile`
+9. `my-production-agent/docker-compose.yml`
+10. `my-production-agent/nginx.conf`
+11. `my-production-agent/.env.example`
 
 ### Kết luận
 
